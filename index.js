@@ -1,25 +1,38 @@
 import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
+import bodyParser from 'body-parser';
+import path from 'path';
+
 const app = express();
 
 app.use(cors());
 
-app.get('/', (req, res) => {
-    return res.send('Received a GET HTTP method');
-  });
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+ 
+// parse application/json
+app.use(bodyParser.json())
 
-app.post('/', (req, res) => {
-    return res.send('Received a POST HTTP method');
+const { exec, spawn } = require('child_process');
+
+exec('cpabe-setup', (err, stdout, stderr) => {
+  if(err) {
+    console.log(err);
+  } else {
+    console.log(stdout);
+    console.log(stderr);
+  }
 });
 
-app.put('/', (req, res) => {
-    return res.send('Received a PUT HTTP method');
+app.get('/getPublicKey', (req, res) => {
+  res.download(path.join(__dirname + '/pub_key'), 'pub_key');
 });
-  
-app.delete('/', (req, res) => {
-    return res.send('Received a DELETE HTTP method');
+
+app.get('/getMasterKey', (req, res) => {
+  res.download(path.join(__dirname + '/master_key'), 'master_key');
 });
+
 
 app.listen(process.env.PORT, () =>
   console.log(`Example app listening on port ${process.env.PORT}!`),
